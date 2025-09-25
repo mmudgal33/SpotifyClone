@@ -1,0 +1,2 @@
+GET https://api.spotify.com/v1/me/tracks
+Authorization: Bearer BQA-bCo02st0Kh3uXf9_TCxaqWQz4xHy1B_lvIhbYIwNUF4Ex0UbBMZEoT-dQeZEPmuEVXWk7cicV4U8mlwyXv1r_C9zF4RShhBY9ocx4D4dde9y_Wk
