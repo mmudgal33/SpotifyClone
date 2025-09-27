@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spotify API Frontend</title>
+</head>
+<body>
+    <button onclick="loginWithSpotify()">Login with Spotify</button>
+    <div id="results"></div>
+
+    <script>
+        const clientId = 'e257dc917f8640b5a9afe2f6e6ac1ef9';
+        const redirectUri = 'http://127.0.0.1:8888/callback'; // Different page for frontend
+        
+        function loginWithSpotify() {
+            const scopes = [
+                'user-read-private',
+                'user-read-email'
+            ].join('%20');
+            
+            const authUrl = `https://accounts.spotify.com/authorize?response_type=code&client_id=${clientId}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+            
+            window.location.href = authUrl;
+        }
+        
+        // Check if we're on the callback page with a code
+        if (window.location.search.includes('code=')) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            
+            // Exchange code for token (requires backend for security)
+            exchangeCodeForToken(code);
+        }
+        
+        async function exchangeCodeForToken(code) {
+            try {
+                // In a real application, this should be done through your backend
+                // to keep your client secret secure
+                const response = await fetch('/api/exchange-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ code })
+                });
+                
+                const data = await response.json();
+                
+                if (data.accessToken) {
+                    // Store token and use for API calls
+                    localStorage.setItem('spotify_access_token', data.accessToken);
+                    getUserProfile(data.accessToken);
+                }
+            } catch (error) {
+                console.error('Error exchanging code:', error);
+            }
+        }
+        
+        async function getUserProfile(accessToken) {
+            const response = await fetch('https://api.spotify.com/v1/me', {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            
+            const profile = await response.json();
+            document.getElementById('results').innerHTML = `
+                <h3>Welcome, ${profile.display_name}!</h3>
+                <p>Email: ${profile.email}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
